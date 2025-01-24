@@ -9,6 +9,8 @@ namespace GyroscopePrototype
         [SerializeField] private float _moveSpeed = 5f;
         [SerializeField] private float _rotationSpeed = 5f;
 
+        [SerializeField] private VariableJoystick _variableJoystick;
+
         private Rigidbody _rigidbody;
 
         private void Start()
@@ -19,8 +21,8 @@ namespace GyroscopePrototype
 
         private void FixedUpdate()
         {
-            float horizontal = Input.GetAxis("Horizontal");
-            float vertical = Input.GetAxis("Vertical");
+            float horizontal = _variableJoystick.Horizontal;
+            float vertical = _variableJoystick.Vertical;
 
             Vector3 movement = new Vector3(horizontal, 0 , vertical).normalized;
 
