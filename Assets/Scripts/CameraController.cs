@@ -22,7 +22,8 @@ namespace GyroscopePrototype
             if (Input.gyro.enabled)
             {
                 Quaternion gyroRotation = Input.gyro.attitude;
-                transform.rotation = Quaternion.Euler(gyroRotation.eulerAngles.x, transform.rotation.eulerAngles.y, 0);
+                Vector3 gyroTilt = new Vector3(-gyroRotation.eulerAngles.x, 0, gyroRotation.eulerAngles.z);
+                transform.rotation = Quaternion.Euler(gyroTilt + new Vector3(30, 0, 0)); 
             }
         }
     }
