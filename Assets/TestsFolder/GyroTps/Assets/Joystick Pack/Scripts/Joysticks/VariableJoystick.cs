@@ -2,6 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+public enum JoystickType 
+{   
+    Fixed, 
+    Floating, 
+    Dynamic 
+}
 
 public class VariableJoystick : Joystick
 {
@@ -60,4 +66,3 @@ public class VariableJoystick : Joystick
     }
 }
 
-public enum JoystickType { Fixed, Floating, Dynamic }
