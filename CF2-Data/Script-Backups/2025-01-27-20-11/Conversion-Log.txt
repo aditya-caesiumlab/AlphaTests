@@ -1,0 +1,12 @@
+Converting script [1 / 1]	[\Scripts\PlayerTouchInputs.cs]
+	Fragments : 3
+		[ 0] : Line:   25	InputProperty touchCount          
+		[ 1] : Line:   27	Other mod.	[Touch]
+		[ 2] : Line:   27	InputMethod   GetTouch            	(0)
+
+
+1 scripts modified!
+Overwriting actual scripts...
+	[0 / 1] from  [D:/UnityWork/UnityProject/UnityGames/AlphaTests/CF2-Data/Script-Backups/2025-01-27-20-11\Assets-After/\Scripts\PlayerTouchInputs.cs] to [D:/UnityWork/UnityProject/UnityGames/AlphaTests/Assets/\Scripts\PlayerTouchInputs.cs]
+
+Overwriting COMPLETED!

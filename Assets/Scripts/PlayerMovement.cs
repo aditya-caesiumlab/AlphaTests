@@ -33,8 +33,12 @@ namespace GyroscopePrototype
         {
             Vector3 movement = Vector3.zero;
 
-            float horizontal = _variableJoystick.Horizontal;
-            float vertical = _variableJoystick.Vertical;
+            /* float horizontal = _variableJoystick.Horizontal;
+             float vertical = _variableJoystick.Vertical;*/
+
+            float horizontal = ControlFreak2.CF2Input.GetAxis("Horizontal");   
+            float vertical = ControlFreak2.CF2Input.GetAxis("Vertical");
+
             movement += new Vector3(horizontal, 0, vertical).normalized;
 
             Vector3 moveDirection = transform.TransformDirection(movement) * _moveSpeed * Time.fixedDeltaTime;
