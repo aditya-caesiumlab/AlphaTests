@@ -861,8 +861,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _playerTarget: {fileID: 1469463012}
-  offset: {x: 0, y: 5, z: -7}
+  _offset: {x: 0, y: 3, z: -10}
   _followSpeed: 1
+  _initialRotation: {x: 0, y: 0, z: 0}
 --- !u!1 &333075767
 GameObject:
   m_ObjectHideFlags: 0
@@ -6754,6 +6755,8 @@ MonoBehaviour:
   _cameraFollow: {fileID: 330585548}
   _lookSensitivity: 0.1
   _maxVerticalAngle: 80
+  XValue: 0
+  YValue: 0
 --- !u!1 &2018593191
 GameObject:
   m_ObjectHideFlags: 0
