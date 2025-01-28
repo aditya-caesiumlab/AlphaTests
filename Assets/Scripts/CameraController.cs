@@ -7,25 +7,42 @@ namespace GyroscopePrototype
 {
     public class CameraController : MonoBehaviour
     {
+        [Header("Target and Offset")]
         [SerializeField] private Transform _playerTarget;
-        [SerializeField] private Vector3 offset = new Vector3(0, 5, -10);
+        [SerializeField] private Vector3 _offset;
+
+        [Header("Follow Settings")]
         [SerializeField] private float _followSpeed = 0.125f;
 
-        public Quaternion CurrentRotation { get; private set; } = Quaternion.identity;
+        [Header("Rotation Settings")]
+        [SerializeField] private Vector3 _initialRotation;
+
+        private Quaternion _currentRotation;
+
+        private void Start()
+        {
+            // Initialize rotation with the Inspector-defined value
+            _currentRotation = Quaternion.Euler(_initialRotation);
+            transform.rotation = _currentRotation;
+            if (_playerTarget != null)
+            {
+                transform.position = _playerTarget.position + _offset;
+            }
+        }
 
         private void LateUpdate()
         {
             if (_playerTarget == null) return;
 
             FollowPlayer();
-            transform.rotation = CurrentRotation;
+            transform.rotation = _currentRotation;
 
            // GyroscopeFollow();
         }
 
         private void GyroscopeFollow()
         {
-            Vector3 targetPosition = _playerTarget.position + offset;
+            Vector3 targetPosition = _playerTarget.position + _offset;
             transform.position = Vector3.Lerp(transform.position, targetPosition, _followSpeed * Time.deltaTime);
 
             // Optional: Adjust camera tilt using gyroscope
@@ -39,13 +56,14 @@ namespace GyroscopePrototype
 
         private void FollowPlayer()
         {
-            Vector3 targetPosition = _playerTarget.position + offset;
+            Vector3 targetPosition = _playerTarget.position + _offset;
             transform.position = Vector3.Lerp(transform.position, targetPosition, _followSpeed * Time.deltaTime);
+           //targetPosition = Vector3.MoveTowards(transform.position, targetPosition,_followSpeed * Time.deltaTime);
         }
 
         public void UpdateRotation(Quaternion rotation)
         {
-            CurrentRotation = rotation;
+            _currentRotation = rotation;
         }
     }
 }
