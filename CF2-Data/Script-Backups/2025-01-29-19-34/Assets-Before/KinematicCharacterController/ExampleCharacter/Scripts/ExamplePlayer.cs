@@ -19,7 +19,7 @@ namespace KinematicCharacterController.Examples
 
         private void Start()
         {
-            ControlFreak2.CFCursor.lockState = CursorLockMode.Locked;
+            Cursor.lockState = CursorLockMode.Locked;
 
             // Tell camera to follow transform
             CharacterCamera.SetFollowTransform(Character.CameraFollowPoint);
@@ -31,9 +31,9 @@ namespace KinematicCharacterController.Examples
 
         private void Update()
         {
-            if (ControlFreak2.CF2Input.GetMouseButtonDown(0))
+            if (Input.GetMouseButtonDown(0))
             {
-                ControlFreak2.CFCursor.lockState = CursorLockMode.Locked;
+                Cursor.lockState = CursorLockMode.Locked;
             }
 
             HandleCharacterInput();
@@ -54,18 +54,18 @@ namespace KinematicCharacterController.Examples
         private void HandleCameraInput()
         {
             // Create the look input vector for the camera
-            float mouseLookAxisUp = ControlFreak2.CF2Input.GetAxisRaw(MouseYInput);
-            float mouseLookAxisRight = ControlFreak2.CF2Input.GetAxisRaw(MouseXInput);
+            float mouseLookAxisUp = Input.GetAxisRaw(MouseYInput);
+            float mouseLookAxisRight = Input.GetAxisRaw(MouseXInput);
             Vector3 lookInputVector = new Vector3(mouseLookAxisRight, mouseLookAxisUp, 0f);
 
             // Prevent moving the camera while the cursor isn't locked
-            if (ControlFreak2.CFCursor.lockState != CursorLockMode.Locked)
+            if (Cursor.lockState != CursorLockMode.Locked)
             {
                 lookInputVector = Vector3.zero;
             }
 
             // Input for zooming the camera (disabled in WebGL because it can cause problems)
-            float scrollInput = -ControlFreak2.CF2Input.GetAxis(MouseScrollInput);
+            float scrollInput = -Input.GetAxis(MouseScrollInput);
 #if UNITY_WEBGL
         scrollInput = 0f;
 #endif
@@ -74,7 +74,7 @@ namespace KinematicCharacterController.Examples
             CharacterCamera.UpdateWithInput(Time.deltaTime, scrollInput, lookInputVector);
 
             // Handle toggling zoom level
-            if (ControlFreak2.CF2Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(1))
             {
                 CharacterCamera.TargetDistance = (CharacterCamera.TargetDistance == 0f) ? CharacterCamera.DefaultDistance : 0f;
             }
@@ -85,12 +85,12 @@ namespace KinematicCharacterController.Examples
             PlayerCharacterInputs characterInputs = new PlayerCharacterInputs();
 
             // Build the CharacterInputs struct
-            characterInputs.MoveAxisForward = ControlFreak2.CF2Input.GetAxisRaw(VerticalInput);
-            characterInputs.MoveAxisRight = ControlFreak2.CF2Input.GetAxisRaw(HorizontalInput);
+            characterInputs.MoveAxisForward = Input.GetAxisRaw(VerticalInput);
+            characterInputs.MoveAxisRight = Input.GetAxisRaw(HorizontalInput);
             characterInputs.CameraRotation = CharacterCamera.Transform.rotation;
-            characterInputs.JumpDown = ControlFreak2.CF2Input.GetKeyDown(KeyCode.Space);
-            characterInputs.CrouchDown = ControlFreak2.CF2Input.GetKeyDown(KeyCode.C);
-            characterInputs.CrouchUp = ControlFreak2.CF2Input.GetKeyUp(KeyCode.C);
+            characterInputs.JumpDown = Input.GetKeyDown(KeyCode.Space);
+            characterInputs.CrouchDown = Input.GetKeyDown(KeyCode.C);
+            characterInputs.CrouchUp = Input.GetKeyUp(KeyCode.C);
 
             // Apply inputs to character
             Character.SetInputs(ref characterInputs);

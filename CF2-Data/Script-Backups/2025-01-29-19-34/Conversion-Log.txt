@@ -1,0 +1,22 @@
+Converting script [1 / 1]	[\KinematicCharacterController\ExampleCharacter\Scripts\ExamplePlayer.cs]
+	Fragments : 13
+		[ 0] : Line:   22	Other mod.	[Cursor.lockState]
+		[ 1] : Line:   34	InputMethod   GetMouseButtonDown  	(0)
+		[ 2] : Line:   36	Other mod.	[Cursor.lockState]
+		[ 3] : Line:   57	InputMethod   GetAxisRaw          	(MouseYInput)
+		[ 4] : Line:   58	InputMethod   GetAxisRaw          	(MouseXInput)
+		[ 5] : Line:   62	Other mod.	[Cursor.lockState]
+		[ 6] : Line:   68	InputMethod   GetAxis             	(MouseScrollInput)
+		[ 7] : Line:   77	InputMethod   GetMouseButtonDown  	(1)
+		[ 8] : Line:   88	InputMethod   GetAxisRaw          	(VerticalInput)
+		[ 9] : Line:   89	InputMethod   GetAxisRaw          	(HorizontalInput)
+		[10] : Line:   91	InputMethod   GetKeyDown          	(KeyCode.Space)
+		[11] : Line:   92	InputMethod   GetKeyDown          	(KeyCode.C)
+		[12] : Line:   93	InputMethod   GetKeyUp            	(KeyCode.C)
+
+
+1 scripts modified!
+Overwriting actual scripts...
+	[0 / 1] from  [D:/UnityWork/UnityProject/UnityGames/AlphaTests/CF2-Data/Script-Backups/2025-01-29-19-34\Assets-After/\KinematicCharacterController\ExampleCharacter\Scripts\ExamplePlayer.cs] to [D:/UnityWork/UnityProject/UnityGames/AlphaTests/Assets/\KinematicCharacterController\ExampleCharacter\Scripts\ExamplePlayer.cs]
+
+Overwriting COMPLETED!
