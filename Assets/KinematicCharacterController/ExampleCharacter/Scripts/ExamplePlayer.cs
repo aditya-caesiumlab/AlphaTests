@@ -48,7 +48,7 @@ namespace KinematicCharacterController.Examples
                 CharacterCamera.PlanarDirection = Vector3.ProjectOnPlane(CharacterCamera.PlanarDirection, Character.Motor.CharacterUp).normalized;
             }
 
-            HandleCameraInput();
+           HandleCameraInput();
         }
 
         private void HandleCameraInput()
@@ -56,6 +56,7 @@ namespace KinematicCharacterController.Examples
             // Create the look input vector for the camera
             float mouseLookAxisUp = ControlFreak2.CF2Input.GetAxisRaw(MouseYInput);
             float mouseLookAxisRight = ControlFreak2.CF2Input.GetAxisRaw(MouseXInput);
+
             Vector3 lookInputVector = new Vector3(mouseLookAxisRight, mouseLookAxisUp, 0f);
 
             // Prevent moving the camera while the cursor isn't locked
@@ -65,7 +66,7 @@ namespace KinematicCharacterController.Examples
             }
 
             // Input for zooming the camera (disabled in WebGL because it can cause problems)
-            float scrollInput = -ControlFreak2.CF2Input.GetAxis(MouseScrollInput);
+            float scrollInput = Input.GetAxis(MouseScrollInput);
 #if UNITY_WEBGL
         scrollInput = 0f;
 #endif
