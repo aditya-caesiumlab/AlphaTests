@@ -18,7 +18,7 @@ namespace GyroscopePrototype
             if (SystemInfo.supportsGyroscope)
             {
                 Input.gyro.enabled = true;
-                Debug.Log("Gyroscope Enabled");
+                Debug.Log("Gyroscope Supported");
                 Debug.Log("Gyroscope is supported on this device.");
                 _statusText.text = Input.gyro.enabled ? "Gyroscope: Enabled" : "Gyroscope: Supported but not enabled.";
 

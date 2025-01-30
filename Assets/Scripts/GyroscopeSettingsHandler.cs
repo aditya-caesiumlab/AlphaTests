@@ -9,7 +9,6 @@ namespace GyroscopePrototype
     {
         [Header("Settings Attributes")]
         [SerializeField] private Button _settingsButton;
-
         [SerializeField] private GameObject _settingsPanel;
         [SerializeField] private Button _closeButton;
 
@@ -17,6 +16,9 @@ namespace GyroscopePrototype
         [SerializeField] private Button _alwaysOnButton;
         [SerializeField] private Button _scopeOnButton;
         [SerializeField] private Button _offButton;
+
+        [Header("Application Close Button")]
+        [SerializeField] private Button _applicationCloseButton;
 
         private void OnEnable()
         {
@@ -26,6 +28,8 @@ namespace GyroscopePrototype
             _alwaysOnButton.onClick.AddListener(OnAlwaysOnButton);
             _scopeOnButton.onClick.AddListener(OnScopeOnButton);
             _offButton.onClick.AddListener(OnOffButton);
+
+            _applicationCloseButton.onClick.AddListener(OnApplicationCloseButton);
         }
 
         private void OnDisable()
@@ -36,6 +40,8 @@ namespace GyroscopePrototype
             _alwaysOnButton.onClick.RemoveListener(OnAlwaysOnButton);
             _scopeOnButton.onClick.RemoveListener(OnScopeOnButton);
             _offButton.onClick.RemoveListener(OnOffButton);
+
+            _applicationCloseButton.onClick.RemoveListener(OnApplicationCloseButton);
         }
 
         #region Settings Button Method
@@ -68,6 +74,15 @@ namespace GyroscopePrototype
             Debug.Log("Gyroscope OFF Button Clicked");
         }
 
+        #endregion
+
+        #region Application Close Button
+        
+        private void OnApplicationCloseButton()
+        {
+            Application.Quit();
+            Debug.Log("Application is Closing");
+        }
         #endregion
     }
 }
