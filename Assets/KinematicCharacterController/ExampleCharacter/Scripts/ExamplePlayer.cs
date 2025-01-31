@@ -3,19 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using KinematicCharacterController;
 using KinematicCharacterController.Examples;
+using GyroscopePrototype;
 
 namespace KinematicCharacterController.Examples
 {
     public class ExamplePlayer : MonoBehaviour
     {
         public ExampleCharacterController Character;
-        public ExampleCharacterCamera CharacterCamera;
+        // public ExampleCharacterCamera CharacterCamera;
+
+        public CameraController CharacterCamera;
 
         private const string MouseXInput = "Mouse X";
         private const string MouseYInput = "Mouse Y";
         private const string MouseScrollInput = "Mouse ScrollWheel";
         private const string HorizontalInput = "Horizontal";
         private const string VerticalInput = "Vertical";
+
+
+        [SerializeField] float MouseX;
+        [SerializeField] float MouseY;
 
         private void Start()
         {
@@ -54,10 +61,10 @@ namespace KinematicCharacterController.Examples
         private void HandleCameraInput()
         {
             // Create the look input vector for the camera
-            float mouseLookAxisUp = ControlFreak2.CF2Input.GetAxisRaw(MouseYInput);
-            float mouseLookAxisRight = ControlFreak2.CF2Input.GetAxisRaw(MouseXInput);
+            MouseX = ControlFreak2.CF2Input.GetAxisRaw(MouseYInput);
+            MouseY = ControlFreak2.CF2Input.GetAxisRaw(MouseXInput);
 
-            Vector3 lookInputVector = new Vector3(mouseLookAxisRight, mouseLookAxisUp, 0f);
+            Vector3 lookInputVector = new Vector3(MouseY, MouseX, 0f);
 
             // Prevent moving the camera while the cursor isn't locked
             if (ControlFreak2.CFCursor.lockState != CursorLockMode.Locked)

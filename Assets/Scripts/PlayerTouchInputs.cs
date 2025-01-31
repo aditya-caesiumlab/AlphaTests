@@ -6,7 +6,7 @@ namespace GyroscopePrototype
 {
     public class PlayerTouchInputs : MonoBehaviour
     {
-        [SerializeField] private CameraController _cameraFollow; 
+        [SerializeField] private CameraHandler _cameraFollow; 
         [SerializeField] private float _lookSensitivity = 0.1f; 
         [SerializeField] private float _maxVerticalAngle = 80f; 
 

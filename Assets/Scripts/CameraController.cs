@@ -1,69 +1,196 @@
 using System.Collections;
 using System.Collections.Generic;
+using GyroscopePrototype;
 using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
 
 namespace GyroscopePrototype
 {
     public class CameraController : MonoBehaviour
     {
-        [Header("Target and Offset")]
-        [SerializeField] private Transform _playerTarget;
-        [SerializeField] private Vector3 _offset;
+        #region Variables
+        [Header("Gyroscope")]
+        [SerializeField] private GyroscopeController gyroscopeController; 
 
-        [Header("Follow Settings")]
-        [SerializeField] private float _followSpeed = 0.125f;
+        [Header("Framing")]
+        public Camera Camera;
+        public Vector2 FollowPointFraming = new Vector2(0f, 0f);
+        public float FollowingSharpness = 10000f;
 
-        [Header("Rotation Settings")]
-        [SerializeField] private Vector3 _initialRotation;
+        [Header("Distance")]
+        public float DefaultDistance = 6f;
+        public float MinDistance = 0f;
+        public float MaxDistance = 10f;
+        public float DistanceMovementSpeed = 5f;
+        public float DistanceMovementSharpness = 10f;
 
-        private Quaternion _currentRotation;
+        [Header("Rotation")]
+        public bool InvertX = false;
+        public bool InvertY = false;
+        [Range(-90f, 90f)]
+        public float DefaultVerticalAngle = 20f;
+        [Range(-90f, 90f)]
+        public float MinVerticalAngle = -90f;
+        [Range(-90f, 90f)]
+        public float MaxVerticalAngle = 90f;
+        public float RotationSpeed = 1f;
+        public float RotationSharpness = 10000f;
+        public bool RotateWithPhysicsMover = false;
 
-        private void Start()
+        [Header("Obstruction")]
+        public float ObstructionCheckRadius = 0.2f;
+        public LayerMask ObstructionLayers = -1;
+        public float ObstructionSharpness = 10000f;
+        public List<Collider> IgnoredColliders = new List<Collider>();
+
+        public Transform Transform { get; private set; }
+        public Transform FollowTransform { get; private set; }
+
+        public Vector3 PlanarDirection { get; set; }
+        public float TargetDistance { get; set; }
+
+        private bool _distanceIsObstructed;
+        private float _currentDistance;
+        private float _targetVerticalAngle;
+        private RaycastHit _obstructionHit;
+        private int _obstructionCount;
+        private RaycastHit[] _obstructions = new RaycastHit[MaxObstructions];
+        private float _obstructionTime;
+        private Vector3 _currentFollowPosition;
+
+        private const int MaxObstructions = 32;
+
+        #endregion
+
+        void OnValidate()
         {
-            // Initialize rotation with the Inspector-defined value
-            _currentRotation = Quaternion.Euler(_initialRotation);
-            transform.rotation = _currentRotation;
-            if (_playerTarget != null)
+            DefaultDistance = Mathf.Clamp(DefaultDistance, MinDistance, MaxDistance);
+            DefaultVerticalAngle = Mathf.Clamp(DefaultVerticalAngle, MinVerticalAngle, MaxVerticalAngle);
+        }
+
+        void Awake()
+        {
+            Transform = this.transform;
+
+            _currentDistance = DefaultDistance;
+            TargetDistance = _currentDistance;
+
+            _targetVerticalAngle = 0f;
+
+            PlanarDirection = Vector3.forward;
+        }
+
+        // Set the transform that the camera will orbit around
+        public void SetFollowTransform(Transform t)
+        {
+            FollowTransform = t;
+            PlanarDirection = FollowTransform.forward;
+            _currentFollowPosition = FollowTransform.position;
+        }
+
+        public void UpdateWithInput(float deltaTime, float zoomInput, Vector3 rotationInput)
+        {
+            if (FollowTransform)
             {
-                transform.position = _playerTarget.position + _offset;
+                // Use Gyro input if enabled by the GyroscopeController
+                if (gyroscopeController.isGyroEnabled) // This will be checked by GyroscopeController
+                {
+                    rotationInput = GetGyroInput(); // Get rotation from GyroscopeController
+                }
+                else
+                {
+                    // Handle normal input rotation
+                    if (InvertX) rotationInput.x *= -1f;
+                    if (InvertY) rotationInput.y *= -1f;
+                }
+
+                // Process rotation input
+                Quaternion rotationFromInput = Quaternion.Euler(FollowTransform.up * (rotationInput.x * RotationSpeed));
+                PlanarDirection = rotationFromInput * PlanarDirection;
+                PlanarDirection = Vector3.Cross(FollowTransform.up, Vector3.Cross(PlanarDirection, FollowTransform.up));
+                Quaternion planarRot = Quaternion.LookRotation(PlanarDirection, FollowTransform.up);
+
+                _targetVerticalAngle -= (rotationInput.y * RotationSpeed);
+                _targetVerticalAngle = Mathf.Clamp(_targetVerticalAngle, MinVerticalAngle, MaxVerticalAngle);
+                Quaternion verticalRot = Quaternion.Euler(_targetVerticalAngle, 0, 0);
+                Quaternion targetRotation = Quaternion.Slerp(Transform.rotation, planarRot * verticalRot, 1f - Mathf.Exp(-RotationSharpness * deltaTime));
+
+                // Apply rotation
+                Transform.rotation = targetRotation;
+
+                // Process distance input
+                if (_distanceIsObstructed && Mathf.Abs(zoomInput) > 0f)
+                {
+                    TargetDistance = _currentDistance;
+                }
+                TargetDistance += zoomInput * DistanceMovementSpeed;
+                TargetDistance = Mathf.Clamp(TargetDistance, MinDistance, MaxDistance);
+
+                // Find the smoothed follow position
+                _currentFollowPosition = Vector3.Lerp(_currentFollowPosition, FollowTransform.position, 1f - Mathf.Exp(-FollowingSharpness * deltaTime));
+
+                // Handle obstructions
+                HandleObstructions(deltaTime);
+
+                // Find the smoothed camera orbit position
+                Vector3 targetPosition = _currentFollowPosition - ((targetRotation * Vector3.forward) * _currentDistance);
+
+                // Handle framing
+                targetPosition += Transform.right * FollowPointFraming.x;
+                targetPosition += Transform.up * FollowPointFraming.y;
+
+                // Apply position
+                Transform.position = targetPosition;
             }
         }
 
-        private void LateUpdate()
+        private void HandleObstructions(float deltaTime)
         {
-            if (_playerTarget == null) return;
-
-            FollowPlayer();
-            transform.rotation = _currentRotation;
-
-            // GyroscopeFollow();
-        }
-
-        private void GyroscopeFollow()
-        {
-            Vector3 targetPosition = _playerTarget.position + _offset;
-            transform.position = Vector3.Lerp(transform.position, targetPosition, _followSpeed * Time.deltaTime);
-
-            // Optional: Adjust camera tilt using gyroscope
-            if (Input.gyro.enabled)
+            RaycastHit closestHit = new RaycastHit();
+            closestHit.distance = Mathf.Infinity;
+            _obstructionCount = Physics.SphereCastNonAlloc(_currentFollowPosition, ObstructionCheckRadius, -Transform.forward, _obstructions, TargetDistance, ObstructionLayers, QueryTriggerInteraction.Ignore);
+            for (int i = 0; i < _obstructionCount; i++)
             {
-                Quaternion gyroRotation = Input.gyro.attitude;
-                Vector3 gyroTilt = new Vector3(-gyroRotation.eulerAngles.x, 0, gyroRotation.eulerAngles.z);
-                transform.rotation = Quaternion.Euler(gyroTilt + new Vector3(30, 0, 0));
+                bool isIgnored = false;
+                for (int j = 0; j < IgnoredColliders.Count; j++)
+                {
+                    if (IgnoredColliders[j] == _obstructions[i].collider)
+                    {
+                        isIgnored = true;
+                        break;
+                    }
+                }
+
+                if (!isIgnored && _obstructions[i].distance < closestHit.distance && _obstructions[i].distance > 0)
+                {
+                    closestHit = _obstructions[i];
+                }
+            }
+
+            // If obstructions detected
+            if (closestHit.distance < Mathf.Infinity)
+            {
+                _distanceIsObstructed = true;
+                _currentDistance = Mathf.Lerp(_currentDistance, closestHit.distance, 1 - Mathf.Exp(-ObstructionSharpness * deltaTime));
+            }
+            else
+            {
+                _distanceIsObstructed = false;
+                _currentDistance = Mathf.Lerp(_currentDistance, TargetDistance, 1 - Mathf.Exp(-DistanceMovementSharpness * deltaTime));
             }
         }
 
-        private void FollowPlayer()
+        /// <summary>
+        /// Get rotation values from the gyroscope
+        /// </summary>
+        private Vector3 GetGyroInput()
         {
-            Vector3 targetPosition = _playerTarget.position + _offset;
-            transform.position = Vector3.Lerp(transform.position, targetPosition, _followSpeed * Time.deltaTime);
-            //targetPosition = Vector3.MoveTowards(transform.position, targetPosition,_followSpeed * Time.deltaTime);
-        }
+            if (gyroscopeController == null || !gyroscopeController.isGyroEnabled) // Check gyro status from GyroscopeController
+            {
+                return Vector3.zero; // Return no rotation if gyro is disabled
+            }
 
-        public void UpdateRotation(Quaternion rotation)
-        {
-            _currentRotation = rotation;
+            Vector3 gyroRotation = new Vector3(gyroscopeController.GyroRotation.y, gyroscopeController.GyroRotation.x, 0); // Rotate the Y and X axis based on the gyro rotation.
+            return gyroRotation;
         }
     }
 }
