@@ -8,6 +8,7 @@ namespace GyroscopePrototype
 {
     public class GyroscopeController : MonoBehaviour
     {
+        #region Variables
         [Header("Camera Reference")]
         [SerializeField] private Transform cameraTransform; 
 
@@ -19,6 +20,7 @@ namespace GyroscopePrototype
         [Header("Gyroscope Values Display")]
         [SerializeField] private TextMeshProUGUI statusText;
         [SerializeField] private TextMeshProUGUI rawGyroDataText;
+        [SerializeField] private TextMeshProUGUI gyroChangeValue;
         [SerializeField] private TextMeshProUGUI appliedRotationText;
         [SerializeField] private TextMeshProUGUI cameraRotationText;
 
@@ -29,8 +31,11 @@ namespace GyroscopePrototype
         internal bool isGyroEnabled = false;
         private Quaternion initialGyroRotation;
 
-        public Vector2 GyroRotation { get; private set; } 
+        public Vector2 GyroRotation { get; private set; }
 
+        #endregion
+
+        #region Unity Methods
         private void Start()
         {
             InitialGyroCheck();
@@ -45,6 +50,7 @@ namespace GyroscopePrototype
             if (isGyroEnabled)
             {
                 Vector2 rotation = GetGyroInput();
+                //Vector2 rotation = GetGyroDeltaRotation();
                 GyroRotation = rotation;
 
                 if (cameraTransform != null)
@@ -55,7 +61,9 @@ namespace GyroscopePrototype
 
             UpdateGyroDebugUI();
         }
+        #endregion
 
+        #region Gyrsoscope Methods
         private void InitializeGyroValues()
         {
             // Initialize UI values
@@ -108,11 +116,35 @@ namespace GyroscopePrototype
             return new Vector2(eulerRotation.x, eulerRotation.y);
         }
 
+        private Vector2 GetGyroDeltaRotation()
+        {
+            Quaternion currentGyro = Input.gyro.attitude;
+            currentGyro = Quaternion.Euler(90f, 0f, 0f) * new Quaternion(-currentGyro.x, -currentGyro.y, currentGyro.z, currentGyro.w);
+
+            // Calculate the delta change from the initial rotation
+            Quaternion deltaRotation = currentGyro * Quaternion.Inverse(initialGyroRotation);
+            Vector3 eulerRotation = deltaRotation.eulerAngles;
+
+            // Convert to (-180, 180) range
+            if (eulerRotation.x > 180) eulerRotation.x -= 360;
+            if (eulerRotation.y > 180) eulerRotation.y -= 360;
+
+            // Apply sensitivity and limits
+            float sensitivity = sensitivitySlider.value;
+            float rotationLimit = rotationLimitSlider.value;
+            eulerRotation.x = Mathf.Clamp(eulerRotation.x * sensitivity, -rotationLimit, rotationLimit);
+            eulerRotation.y = Mathf.Clamp(eulerRotation.y * sensitivity, -rotationLimit, rotationLimit);
+
+            return new Vector2(eulerRotation.x, eulerRotation.y);
+        }
+
         private void ApplyGyroRotation(Vector2 rotation)
         {
             Quaternion targetRotation = Quaternion.Euler(rotation.x, rotation.y, 0);
             cameraTransform.localRotation = Quaternion.Slerp(cameraTransform.localRotation, targetRotation, Time.deltaTime * sensitivitySlider.value);
         }
+
+        #endregion
 
         #region Gyro UI Methods
         public void ToggleGyro(bool value)
@@ -150,17 +182,27 @@ namespace GyroscopePrototype
             }
         }
 
+
+        Vector3 oldGyroValues;
+        Vector3 rawGyroEulerAngles;
+        public Vector3 GyRoDeltaValue;
         private void UpdateGyroDebugUI()
         {
             if (statusText != null)
             {
                 Vector2 gyroRotation = GyroRotation;
                 Vector3 cameraEuler = cameraTransform.localRotation.eulerAngles;
-                Vector3 rawGyroEulerAngles = Input.gyro.attitude.eulerAngles;
+
+                oldGyroValues = rawGyroEulerAngles;
+                rawGyroEulerAngles = Input.gyro.attitude.eulerAngles;
+                Vector3 NewGyroValues = rawGyroEulerAngles;
+
+                GyRoDeltaValue = new Vector3(NewGyroValues.x - oldGyroValues.x, NewGyroValues.y - oldGyroValues.y, NewGyroValues.z - oldGyroValues.z);
 
                 rawGyroDataText.text = $"Raw Gyro: X={rawGyroEulerAngles.x:F2}, Y={rawGyroEulerAngles.y:F2}";
                 appliedRotationText.text = $"Applied Rotation: X={gyroRotation.x:F2}, Y={gyroRotation.y:F2}";
                 cameraRotationText.text = $"Camera Rotation: X={cameraEuler.x:F2}, Y={cameraEuler.y:F2}, Z={cameraEuler.z:F2}";
+                gyroChangeValue.text = $"Gyro Delta X : {GyRoDeltaValue.x} , Y : {GyRoDeltaValue.y}, Z : {GyRoDeltaValue.z}";
             }
         }
         #endregion

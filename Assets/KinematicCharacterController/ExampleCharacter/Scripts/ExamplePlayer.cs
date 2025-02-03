@@ -20,9 +20,12 @@ namespace KinematicCharacterController.Examples
         private const string HorizontalInput = "Horizontal";
         private const string VerticalInput = "Vertical";
 
-
         [SerializeField] private float MouseX;
         [SerializeField] private float MouseY;
+
+        [Header("Gyroscope Integration")]
+        [SerializeField] private GyroscopeController gyroController;
+        [SerializeField] private float gyroWeight = 0.5f;  
 
         private void Start()
         {
@@ -55,7 +58,41 @@ namespace KinematicCharacterController.Examples
                 CharacterCamera.PlanarDirection = Vector3.ProjectOnPlane(CharacterCamera.PlanarDirection, Character.Motor.CharacterUp).normalized;
             }
 
-           HandleCameraInput();
+           HandleCameraGyroscopeInput();
+           //HandleCameraInput();
+        }
+
+        private void HandleCameraGyroscopeInput()
+        {
+
+
+            float mouseInputX = ControlFreak2.CF2Input.GetAxisRaw(MouseXInput) + gyroController.GyRoDeltaValue.y;
+            float mouseInputY = ControlFreak2.CF2Input.GetAxisRaw(MouseYInput) + gyroController.GyRoDeltaValue.x;
+
+            Vector2 gyroRotation = gyroController != null && gyroController.isGyroEnabled ? gyroController.GyroRotation : Vector2.zero;
+
+
+            float blendedX = Mathf.Lerp(mouseInputX, gyroRotation.x, gyroWeight);
+            float blendedY = Mathf.Lerp(mouseInputY, gyroRotation.y, gyroWeight);
+
+            Vector3 lookInputVector = new Vector3(mouseInputX, mouseInputY, 0f);
+
+            if (ControlFreak2.CFCursor.lockState != CursorLockMode.Locked)
+            {
+                lookInputVector = Vector3.zero;
+            }
+
+            float scrollInput = Input.GetAxis(MouseScrollInput);
+#if UNITY_WEBGL
+        scrollInput = 0f;
+#endif
+
+            CharacterCamera.UpdateWithInput(Time.deltaTime, scrollInput, lookInputVector);
+
+            if (ControlFreak2.CF2Input.GetMouseButtonDown(1))
+            {
+                CharacterCamera.TargetDistance = (CharacterCamera.TargetDistance == 0f) ? CharacterCamera.DefaultDistance : 0f;
+            }
         }
 
         private void HandleCameraInput()
@@ -75,7 +112,7 @@ namespace KinematicCharacterController.Examples
             // Input for zooming the camera (disabled in WebGL because it can cause problems)
             float scrollInput = Input.GetAxis(MouseScrollInput);
 #if UNITY_WEBGL
-        scrollInput = 0f;
+          scrollInput = 0f;
 #endif
 
             // Apply inputs to the camera

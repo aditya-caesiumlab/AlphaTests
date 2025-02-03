@@ -34,9 +34,6 @@ namespace GyroscopePrototype
             {
                 Input.gyro.enabled = true;
                 Debug.Log("Gyroscope Enabled");
-
-                SetupSliders();
-                UpdateTextDisplays();
             }
             else
             {
@@ -75,72 +72,6 @@ namespace GyroscopePrototype
 
             // Debugging - Display gyroscope tilt values
             Debug.Log($"Gyro Tilt: {adjustedTilt}");
-        }
-
-        private void SetupSliders()
-        {
-            if (sensitivitySlider != null)
-            {
-                sensitivitySlider.minValue = 0.1f;
-                sensitivitySlider.maxValue = 2f;
-                sensitivitySlider.value = gyroSensitivity;
-                sensitivitySlider.onValueChanged.AddListener(value =>
-                {
-                    gyroSensitivity = Mathf.Clamp(value, 0.1f, 2f);
-                    UpdateTextDisplays();
-                });
-            }
-
-            if (filterSlider != null)
-            {
-                filterSlider.minValue = 0.01f;
-                filterSlider.maxValue = 0.5f;
-                filterSlider.value = filterStrength;
-                filterSlider.onValueChanged.AddListener(value =>
-                {
-                    filterStrength = Mathf.Clamp(value, 0.01f, 0.5f);
-                    UpdateTextDisplays();
-                });
-            }
-
-            if (maxTiltSlider != null)
-            {
-                maxTiltSlider.minValue = 10f;
-                maxTiltSlider.maxValue = 90f;
-                maxTiltSlider.value = maxTiltAngle;
-                maxTiltSlider.onValueChanged.AddListener(value =>
-                {
-                    maxTiltAngle = Mathf.Clamp(value, 10f, 90f);
-                    UpdateTextDisplays();
-                });
-            }
-
-            if (deadZoneSlider != null)
-            {
-                deadZoneSlider.minValue = 0f;
-                deadZoneSlider.maxValue = 0.5f;
-                deadZoneSlider.value = deadZone;
-                deadZoneSlider.onValueChanged.AddListener(value =>
-                {
-                    deadZone = Mathf.Clamp(value, 0f, 0.5f);
-                    UpdateTextDisplays();
-                });
-            }
-        }
-
-        private void UpdateTextDisplays()
-        {
-            if (sensitivityText != null)
-                sensitivityText.text = $"{sensitivitySlider.value:F2}";
-
-            if (filterText != null)
-                filterText.text = $"{filterStrength:F2}";
-
-            if (maxTiltText != null)
-                maxTiltText.text = $"{maxTiltAngle:F1}°";
-
-            if (deadZoneText != null)
-                deadZoneText.text = $"{deadZone:F2}";
         }
     }
 }

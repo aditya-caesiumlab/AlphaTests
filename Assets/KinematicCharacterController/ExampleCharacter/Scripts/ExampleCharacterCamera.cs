@@ -89,7 +89,6 @@ namespace KinematicCharacterController.Examples
             _currentFollowPosition = FollowTransform.position;
         }
 
-
         private void HandleObstructions(float deltaTime)
         {
             RaycastHit closestHit = new RaycastHit();
