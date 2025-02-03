@@ -21,8 +21,8 @@ namespace KinematicCharacterController.Examples
         private const string VerticalInput = "Vertical";
 
 
-        [SerializeField] float MouseX;
-        [SerializeField] float MouseY;
+        [SerializeField] private float MouseX;
+        [SerializeField] private float MouseY;
 
         private void Start()
         {

@@ -18,9 +18,6 @@ namespace GyroscopePrototype
         
         [Header("Gyroscope Values Display")]
         [SerializeField] private TextMeshProUGUI statusText;
-        [SerializeField] private TextMeshProUGUI gyroToggleText;
-        [SerializeField] private TextMeshProUGUI sensitivityValueText;
-        [SerializeField] private TextMeshProUGUI rotationLimitValueText;
         [SerializeField] private TextMeshProUGUI rawGyroDataText;
         [SerializeField] private TextMeshProUGUI appliedRotationText;
         [SerializeField] private TextMeshProUGUI cameraRotationText;
