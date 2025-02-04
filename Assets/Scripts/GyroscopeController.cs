@@ -33,6 +33,10 @@ namespace GyroscopePrototype
 
         public Vector2 GyroRotation { get; private set; }
 
+        private Vector3 oldGyroValues;
+        private Vector3 rawGyroEulerAngles;
+        public Vector3 GyRoDeltaValue;
+
         #endregion
 
         #region Unity Methods
@@ -182,10 +186,6 @@ namespace GyroscopePrototype
             }
         }
 
-
-        Vector3 oldGyroValues;
-        Vector3 rawGyroEulerAngles;
-        public Vector3 GyRoDeltaValue;
         private void UpdateGyroDebugUI()
         {
             if (statusText != null)

@@ -3,55 +3,63 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class GyroInputController : MonoBehaviour
+namespace GyroscopePrototype
 {
-    [SerializeField] TextMeshProUGUI normalizedDeltaValue;
-    [SerializeField] TextMeshProUGUI GyroRawValues;
-
-    Vector3 oldGyroValues;
-    Vector3 rawGyroEulerAngles;
-    public Vector3 GyRoDeltaValue;
-
-    private void Start()
+    public class GyroInputController : MonoBehaviour
     {
-        Input.gyro.enabled = true; 
-    }
+        [Header("Values Display")]
+        [SerializeField] private TextMeshProUGUI normalizedDeltaValue;
+        [SerializeField] private TextMeshProUGUI GyroRawValues;
 
-    void GetGyroDeltaValue()
-    {
-        oldGyroValues = rawGyroEulerAngles;
-        rawGyroEulerAngles = Input.gyro.attitude.eulerAngles;
-        
-        GyroRawValues.text = $" X : {rawGyroEulerAngles.x} , Y : {rawGyroEulerAngles.y.ToString()}, z :{rawGyroEulerAngles.z} ";
-         
-        GyRoDeltaValue = rawGyroEulerAngles - oldGyroValues;
+        private Vector3 oldGyroValues;
+        private Vector3 rawGyroEulerAngles;
+        public Vector3 GyRoDeltaValue;
 
-        //GyRoDeltaValue = NormalizeAngleDifference(rawGyroEulerAngles - oldGyroValues);
-        normalizedDeltaValue.text = $" X : {GyRoDeltaValue.x} , Y : {GyRoDeltaValue.y}, z :{GyRoDeltaValue.z} ";
+        #region Unity Methods
+        private void Start()
+        {
+            Input.gyro.enabled = true;
+        }
 
-        Debug.Log("Getting Gyro Input"); 
-    }
+        private void Update()
+        {
+            GetGyroDeltaValue();
+        }
+        #endregion
 
-    // Function to handle 360-degree wrapping issues 
-    Vector3 NormalizeAngleDifference(Vector3 delta)
-    {
-        return new Vector3(
-            NormalizeSingleAxis(delta.x),
-            NormalizeSingleAxis(delta.y),
-            NormalizeSingleAxis(delta.z)
-        );
-    }
+        #region Gyro Input Methods
+        private void GetGyroDeltaValue()
+        {
+            oldGyroValues = rawGyroEulerAngles;
+            rawGyroEulerAngles = Input.gyro.attitude.eulerAngles;
 
-    float NormalizeSingleAxis(float angle)
-    {
-        // Ensure the difference is between -180 and 180
-        angle = (angle + 180) % 360 - 180;
-        return angle;
-    }
+            GyroRawValues.text = $" X : {rawGyroEulerAngles.x} , Y : {rawGyroEulerAngles.y.ToString()}, z :{rawGyroEulerAngles.z} ";
 
-    // Update is called once per frame
-    void Update()
-    {
-        GetGyroDeltaValue();
+            GyRoDeltaValue = rawGyroEulerAngles - oldGyroValues;
+
+            //GyRoDeltaValue = NormalizeAngleDifference(rawGyroEulerAngles - oldGyroValues);
+            normalizedDeltaValue.text = $" X : {GyRoDeltaValue.x} , Y : {GyRoDeltaValue.y}, z :{GyRoDeltaValue.z} ";
+
+            Debug.Log("Getting Gyro Input");
+        }
+
+        // Function to handle 360-degree wrapping issues 
+        private Vector3 NormalizeAngleDifference(Vector3 delta)
+        {
+            return new Vector3(
+                NormalizeSingleAxis(delta.x),
+                NormalizeSingleAxis(delta.y),
+                NormalizeSingleAxis(delta.z)
+            );
+        }
+
+        private float NormalizeSingleAxis(float angle)
+        {
+            // Ensure the difference is between -180 and 180
+            angle = (angle + 180) % 360 - 180;
+            return angle;
+        }
+
+        #endregion
     }
 }
